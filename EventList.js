@@ -4,6 +4,8 @@ import ActionButton from 'react-native-action-button';
 
 import EventCard from './EventCard';
 
+import {getEvents} from './api';
+
 const styles = StyleSheet.create({
     list: {
         flex: 1,
@@ -34,24 +36,30 @@ class EventList extends Component {
             })
         }, 1000);
 
-        const events = require('./db.json').events.map(e=> ({
-            ...e,
-            date: new Date(e.date)
-        }));
-        this.setState({events});
+        this.props.navigation.addListener('didFocus', () => {
+            getEvents().then(events=>this.setState({events}));
+        });
+
+        getEvents().then(events => this.setState({ events }));
+        console.log(this.state);
+        // const events = require('./db.json').events.map(e=> ({
+        //     ...e,
+        //     date: new Date(e.date)
+        // }));
+        //this.setState({events});
     }
     render(){
         const {navigate} = this.props.navigation;
         return [
             <FlatList
+                key="flatlist"
                 style={styles.list}
                 data={this.state.events}
-                keyExtractor={item=>item.id}
-                renderItem={({item}) => <EventCard event={item} />}
+                keyExtractor={item => item.id}
+                renderItem={({item, separators}) => <EventCard event={item} />}
             />,
             <ActionButton
                 key="fab"
-                onPress
                 onPress = {(this.handleAddEvent)}
                 buttonColor="rgba(231,76,60,1)"
                 />
